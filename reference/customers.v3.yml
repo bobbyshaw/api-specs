@@ -2203,8 +2203,6 @@ components:
                     postal_code: '78759'
                     state_or_province: Texas
                 meta: {}
-            duplicate:
-              value: {}
     CustomerAttributeValueCollectionResponse:
       description: ''
       content:
