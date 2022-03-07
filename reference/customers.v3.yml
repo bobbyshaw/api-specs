@@ -229,10 +229,8 @@ paths:
         * first_name
         * city
         * country_code
-        * state_or_province
         * last_name
         * address1
-        * postal_code
 
         **Required Fields Attributes**
         * Attributes must be [created](/api-reference/customer-subscribers/v3-customers-api/customer-attributes/customersattributespost) **BEFORE** creating a customer.
@@ -528,7 +526,32 @@ paths:
       tags:
         - Customer Addresses
     post:
-      description: Creates a Customer Address. Multiple customer addresses can be created in one call.
+      description: |-
+        Creates a Customer Address. Multiple customer addresses can be created in one call.
+
+        **Required Fields**
+        * **customer_id**
+        * **first_name**
+        * **last_name**
+        * **city**
+        * **country_code**
+        * **address1**
+
+        **Notes**
+        * A unique customer address is a combination of the following core address fields:
+          * **customer_id**
+          * **first_name**
+          * **last_name**
+          * **company**
+          * **phone**
+          * **address_type**
+          * **address1**
+          * **address2**
+          * **city**
+          * **country_code**
+          * **state_or_province**
+          * **postal_code**
+        * An attempt to create an address that already exists will result in no change to the address or custom form field values, an HTTP 200 return code, and the address will be absent from the response body.
       summary: Create a Customer Address
       operationId: CustomersAddressesPost
       deprecated: false
@@ -599,11 +622,27 @@ paths:
         Updates a Customer Address. Multiple customer addresses can be updated in one call.
 
         **Required Fields**
-        * id -- ID of the *Customer Address*
-        * customer_id -- ID of the *Customer*.
+        * **id** -- ID of the *Customer Address*
+        * **customer_id** -- ID of the *Customer*.
 
         **Limits**
-        * Limit of 3 concurrent requests. 
+        * Limit of **3** concurrent requests.
+
+        **Notes**
+        * A unique customer address is a combination of the following core address fields:
+          * **customer_id**
+          * **first_name**
+          * **last_name**
+          * **company**
+          * **phone**
+          * **address_type**
+          * **address1**
+          * **address2**
+          * **city**
+          * **country_code**
+          * **state_or_province**
+          * **postal_code**
+        * An attempt to update an address such that it becomes identical to another address that already exists will result in no change to the target address or custom form field values, an HTTP 200 return code, and the address will be absent from the response body.
       summary: Update a Customer Address
       operationId: CustomersAddressesPut
       deprecated: false
@@ -1997,104 +2036,156 @@ components:
                     per_page: 50
                     current_page: 1
                     total_pages: 1
+            example-1:
+              value:
+                data:
+                  - address1: string
+                    address2: string
+                    address_type: residential
+                    city: string
+                    company: string
+                    country: string
+                    country_code: st
+                    customer_id: -2147483648
+                    first_name: string
+                    id: -2147483648
+                    last_name: string
+                    phone: string
+                    postal_code: string
+                    state_or_province: string
+                    form_fields:
+                      - {}
+                meta:
+                  pagination:
+                    total: 0
+                    count: 0
+                    per_page: 0
+                    current_page: 0
+                    total_pages: 0
+                    links:
+                      previous: string
+                      current: string
+                      next: string
     AddressCollectionResponsePostPut:
       description: ''
       content:
         application/json:
           schema:
-            title: AddressCollectionResponse
-            description: Response payload for the BigCommerce API.
+            oneOf:
+              - title: AddressCollectionResponse
+                description: Response payload for the BigCommerce API.
+                example:
+                  data:
+                    - address1: 123 Example Street
+                      address2: Building 4
+                      address_type: residential
+                      city: Austin
+                      company: BigCommerce
+                      country: United States
+                      country_code: US
+                      customer_id: 1
+                      first_name: John
+                      id: 18
+                      last_name: Doe
+                      phone: '15551234567'
+                      postal_code: '78759'
+                      state_or_province: Texas
+                  meta: {}
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      title: Address
+                      type: object
+                      properties:
+                        address1:
+                          description: The address 1 line.
+                          type: string
+                        address2:
+                          description: The address 2 line.
+                          type: string
+                        address_type:
+                          title: Address Type
+                          description: The address type. Residential or Commercial
+                          example: residential
+                          type: string
+                          enum:
+                            - residential
+                            - commercial
+                        city:
+                          description: The city of the customer address.
+                          type: string
+                          minLength: 0
+                          maxLength: 100
+                        company:
+                          description: The company of the customer address.
+                          type: string
+                          minLength: 0
+                          maxLength: 255
+                        country:
+                          description: The country name of the customer address.
+                          type: string
+                        country_code:
+                          description: The country code of the customer address.
+                          type: string
+                          minLength: 2
+                          maxLength: 2
+                        customer_id:
+                          description: The customer ID.
+                          type: integer
+                          format: int32
+                        first_name:
+                          description: The first name of the customer address.
+                          type: string
+                          minLength: 1
+                          maxLength: 255
+                        id:
+                          description: The unique numeric ID of the address.
+                          type: integer
+                          format: int32
+                        last_name:
+                          description: The last name of the customer address.
+                          type: string
+                          minLength: 1
+                          maxLength: 255
+                        phone:
+                          description: The phone number of the customer address.
+                          type: string
+                          minLength: 0
+                          maxLength: 50
+                        postal_code:
+                          description: The postal code of the customer address.
+                          type: string
+                          minLength: 0
+                          maxLength: 30
+                        state_or_province:
+                          description: The state or province name
+                          type: string
+                          minLength: 0
+                          maxLength: 100
+                        form_fields:
+                          description: Array of form fields. Controlled by `formfields` parameter.
+                          type: array
+                          items:
+                            oneOf:
+                              - allOf:
+                                  - type: object
+                                    title: Form Field Value Base
+                                  - type: object
+                              - allOf:
+                                  - type: object
+                                    title: Form Field Value Base
+                                  - type: object
+                            title: 'Form Field Value '
+                  meta:
+                    type: object
+              - title: DuplicateAddressCollectionResponse
+                example: {}
+                additionalProperties: false
             type: object
-            properties:
-              data:
-                type: array
-                items:
-                  title: Address
-                  type: object
-                  properties:
-                    address1:
-                      description: The address 1 line.
-                      type: string
-                    address2:
-                      description: The address 2 line.
-                      type: string
-                    address_type:
-                      title: Address Type
-                      description: The address type. Residential or Commercial
-                      example: residential
-                      type: string
-                      enum:
-                        - residential
-                        - commercial
-                    city:
-                      description: The city of the customer address.
-                      type: string
-                      minLength: 0
-                      maxLength: 100
-                    company:
-                      description: The company of the customer address.
-                      type: string
-                      minLength: 0
-                      maxLength: 255
-                    country:
-                      description: The country name of the customer address.
-                      type: string
-                    country_code:
-                      description: The country code of the customer address.
-                      type: string
-                      minLength: 2
-                      maxLength: 2
-                    customer_id:
-                      description: The customer ID.
-                      type: integer
-                      format: int32
-                    first_name:
-                      description: The first name of the customer address.
-                      type: string
-                      minLength: 1
-                      maxLength: 255
-                    id:
-                      description: The unique numeric ID of the address.
-                      type: integer
-                      format: int32
-                    last_name:
-                      description: The last name of the customer address.
-                      type: string
-                      minLength: 1
-                      maxLength: 255
-                    phone:
-                      description: The phone number of the customer address.
-                      type: string
-                      minLength: 0
-                      maxLength: 50
-                    postal_code:
-                      description: The postal code of the customer address.
-                      type: string
-                      minLength: 0
-                      maxLength: 30
-                    state_or_province:
-                      description: The state or province name
-                      type: string
-                      minLength: 0
-                      maxLength: 100
-                    form_fields:
-                      description: Array of form fields. Controlled by `formfields` parameter.
-                      type: array
-                      items:
-                        oneOf:
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                        title: 'Form Field Value '
-              meta:
-                type: object
           examples:
-            response:
+            application/json:
               value:
                 data:
                   - address1: 123 Example Street
@@ -2112,6 +2203,8 @@ components:
                     postal_code: '78759'
                     state_or_province: Texas
                 meta: {}
+            duplicate:
+              value: {}
     CustomerAttributeValueCollectionResponse:
       description: ''
       content:
@@ -2626,7 +2719,6 @@ components:
           format: int32
         links:
           $ref: '#/components/schemas/Links'
-      x-internal: true
     _metaCollection:
       title: _metaCollection
       description: 'Data about the response, including pagination and collection totals.'
@@ -2634,7 +2726,6 @@ components:
       properties:
         pagination:
           $ref: '#/components/schemas/Pagination'
-      x-internal: true
     ErrorResponse:
       title: Error Response
       type: object
@@ -2654,7 +2745,6 @@ components:
           type: object
           additionalProperties:
             type: string
-      x-internal: true
     customer_Full:
       title: customer_Full
       type: object
@@ -2754,7 +2844,6 @@ components:
           description: It determines if the customer is signed up to receive either product review or abandoned cart emails or recieve both emails.
         channel_ids:
           $ref: '#/components/schemas/customerChannelIds'
-      x-internal: true
     customer_Post:
       title: customer_Post
       type: object
@@ -2829,7 +2918,6 @@ components:
         - email
         - first_name
         - last_name
-      x-internal: true
     customer_Put:
       title: customer_Put
       type: object
@@ -2894,7 +2982,6 @@ components:
             type: integer
       required:
         - id
-      x-internal: true
     attribueValue_Base:
       title: attribueValue_Base
       type: object
@@ -2925,7 +3012,6 @@ components:
         - attribute_id
         - value
         - customer_id
-      x-internal: true
     attribute_Full:
       description: ''
       type: object
@@ -2968,7 +3054,6 @@ components:
           description: Attribute value ID
           format: int32
           example: 2
-      x-internal: true
     attribute_Put:
       title: attribute_Put
       type: object
@@ -2986,7 +3071,6 @@ components:
         - name
         - id
       description: 'Once the data type is set, it can not be changed. The attribute will need to be deleted then created again with the new data type. This will also delete it from the customer.'
-      x-internal: true
     attribute_Post:
       title: attribute_Post
       example:
@@ -3011,7 +3095,6 @@ components:
       required:
         - name
         - type
-      x-internal: true
     address_Full:
       title: address_Full
       type: object
@@ -3096,7 +3179,6 @@ components:
         - country_code
         - customer_id
         - id
-      x-internal: true
     address_Put:
       title: address_Put
       type: object
@@ -3176,7 +3258,6 @@ components:
             - customer_id: 1
               id: 18
               first_name: sam
-      x-internal: true
     address_Post:
       title: address_Post
       type: object
@@ -3215,13 +3296,13 @@ components:
           example: Austin
         state_or_province:
           type: string
-          description: The state or province name spelled out in full. State or province codes not accepted.
+          description: The state or province name spelled out in full. It is required for countries that need a state/province to complete an address. State or province codes not accepted.
           example: Texas
           minLength: 0
           maxLength: 100
         postal_code:
           type: string
-          description: The postal code of the customer address.
+          description: The postal code of the customer address. It is required for countries that need postal codes to complete an address.
           minLength: 0
           maxLength: 30
           example: '78759'
@@ -3255,8 +3336,6 @@ components:
         - last_name
         - address1
         - city
-        - state_or_province
-        - postal_code
         - country_code
         - customer_id
       x-examples:
@@ -3274,7 +3353,6 @@ components:
             phone: '15551234567'
             address_type: residential
             customer_id: 1
-      x-internal: true
     customerAddresses_Base:
       title: customerAddresses_Base
       example:
@@ -3318,12 +3396,12 @@ components:
           minLength: 0
           maxLength: 100
         state_or_province:
-          description: The state or province name
+          description: The state or province name. It is required for countries that need a state/province to complete an address.
           type: string
           minLength: 0
           maxLength: 100
         postal_code:
-          description: The postal code of the customer address.
+          description: The postal code of the customer address. It is required for countries that need postal codes to complete an address.
           type: string
           minLength: 0
           maxLength: 30
@@ -3350,11 +3428,8 @@ components:
         - last_name
         - address1
         - city
-        - state_or_province
-        - postal_code
         - country_code
       description: The `address` object for the `customer` object's `addresses` array.
-      x-internal: true
     customerAuthentication_PostPut:
       title: customerAuthentication_PostPut
       allOf:
@@ -3367,7 +3442,6 @@ components:
               description: New password for customer. Write only field
               type: string
       type: object
-      x-internal: true
     Links:
       title: Links
       description: Pagination links for the previous and next parts of the whole collection.
@@ -3382,7 +3456,6 @@ components:
         next:
           description: Link to the next page returned in the response.
           type: string
-      x-internal: true
     formFieldValue_Full:
       oneOf:
         - title: Customer Form Field Value
@@ -3441,7 +3514,6 @@ components:
               type: integer
               description: The Customer Address ID.
       title: formFieldValue_Full
-      x-internal: true
     consent_Full:
       title: consent_Full
       description: Response payload for the BigCommerce API.
@@ -3455,7 +3527,6 @@ components:
           description: The date of which the customer consent was last updated.
           type: string
           format: date-time
-      x-internal: true
     consentAllow:
       title: consentAllow
       type: array
@@ -3472,7 +3543,6 @@ components:
           - functional
           - analytics
           - targeting
-      x-internal: true
     Deny:
       title: Deny
       type: array
@@ -3487,7 +3557,6 @@ components:
           - functional
           - analytics
           - targeting
-      x-internal: true
     DeclareCustomerConsentRequest:
       title: DeclareCustomerConsentRequest
       description: Request payload for the BigCommerce API.
@@ -3497,7 +3566,6 @@ components:
           $ref: '#/components/schemas/consentAllow'
         deny:
           $ref: '#/components/schemas/Deny'
-      x-internal: true
     customerAttributes_Base:
       description: ''
       title: customerAttributes_Base
@@ -3514,7 +3582,6 @@ components:
           minLength: 0
           maxLength: 255
           description: 'Attribute value. This will always be a string, regardless of the attribute’s type.'
-      x-internal: true
     customerChannelIds:
       type: array
       title: customerChannelIds
@@ -3523,7 +3590,6 @@ components:
         example:
           - 1
           - 2
-      x-internal: true
     CardInstrument:
       type: object
       properties:
@@ -3562,7 +3628,6 @@ components:
         billing_address:
           $ref: '#/components/schemas/BillingAddress'
       description: 'Details about a stored card instrument which includes details around billing, last 4 digits, issuer, etc.'
-      x-internal: true
     PayPalAccountInstrument:
       type: object
       properties:
@@ -3583,7 +3648,6 @@ components:
           description: PayPal email address
           example: bc-buyer-paypal-express@bigcommerce.com
       description: A PayPal account stored instrument
-      x-internal: true
     BankAccountInstrument:
       type: object
       properties:
@@ -3608,7 +3672,6 @@ components:
           description: Issuer identifier for the account
           example: DE001
       description: A stored bank account instrument
-      x-internal: true
     BillingAddress:
       type: object
       properties:
@@ -3653,7 +3716,6 @@ components:
         phone:
           type: string
           example: 101-192-0293
-      x-internal: true
     CustomerStoredCreditAmounts:
       description: 'Store credit. '
       type: array
@@ -3665,7 +3727,6 @@ components:
             type: number
             format: float
             example: 43.15
-      x-internal: true
     CustomerSettingsObject:
       title: CustomerSettingsObject
       type: object
@@ -3703,7 +3764,6 @@ components:
             customer_group_settings:
               guest_customer_group_id: 0
               default_customer_group_id: 0
-      x-internal: true
     CustomerChannelSettingsObject:
       title: CustomerChannelSettingsObject
       type: object
@@ -3746,7 +3806,6 @@ components:
               guest_customer_group_id: 0
               default_customer_group_id: 0
             allow_global_logins: true
-      x-internal: true
     ValidateCustomerCredentialsObject:
       title: ValidateCustomerCredentialsObject
       type: object
@@ -3763,7 +3822,6 @@ components:
         channel_id:
           type: integer
           description: ChannelId to check the customer credentials against - If this field is empty we will use channel 1
-      x-internal: true
     ValidateCustomerCredentialsResponseObject:
       title: ValidateCustomerCredentialsResponseObject
       type: object
@@ -3775,4 +3833,3 @@ components:
         is_valid:
           type: boolean
           description: indicates if the provided credentials are valid
-      x-internal: true
