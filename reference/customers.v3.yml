@@ -2155,26 +2155,25 @@ components:
                 type: object
                 example: {}
           examples:
-            success:
-                value:
-                    data:
-                      - address1: 123 Example Street
-                        address2: Building 4
-                        address_type: residential
-                        city: Austin
-                        company: BigCommerce
-                        country: United States
-                        country_code: US
-                        customer_id: 1
-                        first_name: John
-                        id: 18
-                        last_name: Doe
-                        phone: '15551234567'
-                        postal_code: '78759'
-                        state_or_province: Texas
-                    meta: {}
+            application/json:
+                 data:
+                    address1: 123 Example Street
+                    address2: Building 4
+                    address_type: residential
+                    city: Austin
+                    company: BigCommerce
+                    country: United States
+                    country_code: US
+                    customer_id: 1
+                    first_name: John
+                    id: 18
+                    last_name: Doe
+                    phone: '15551234567'
+                    postal_code: '78759'
+                    state_or_province: Texas
+                  meta: {}
             duplicate: 
-              value: {}
+                  data: {}
     CustomerAttributeValueCollectionResponse:
       description: ''
       content:
