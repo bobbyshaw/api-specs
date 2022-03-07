@@ -2156,7 +2156,7 @@ components:
                 example: {}
           examples:
             application/json:
-                 data:
+                 value:
                     address1: 123 Example Street
                     address2: Building 4
                     address_type: residential
@@ -2173,7 +2173,7 @@ components:
                     state_or_province: Texas
                   meta: {}
             duplicate: 
-                  data: {}
+                  value: {}
     CustomerAttributeValueCollectionResponse:
       description: ''
       content:
