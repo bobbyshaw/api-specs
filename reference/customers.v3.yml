@@ -2171,7 +2171,7 @@ components:
                     phone: '15551234567'
                     postal_code: '78759'
                     state_or_province: Texas
-                  meta: {}
+                    meta: {}
             duplicate: 
                   value: {}
     CustomerAttributeValueCollectionResponse:
