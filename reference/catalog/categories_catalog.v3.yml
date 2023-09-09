@@ -1770,21 +1770,20 @@ paths:
           - Priority 2: Manually specified sort order on Product (Global) Level (UI/API).
           - Priority 3: Default sorting by Product ID (newly added products go first) (UI/API).
       operationId: getsortorders
-      parameters:
-        - name: category_id
-          in: path
-          description: The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                type: object
-                properties: {}
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: number
+                    sort_order:
+                      type: integer
         '404':
           description: The requested category was not found.
           content:
@@ -1799,12 +1798,6 @@ paths:
       operationId: updatesortorder
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: category_id
-          in: path
-          description: The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -2366,7 +2359,7 @@ components:
           example: 2
   responses:
     General207Status:
-      description: 'Multi-status. Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occured, such as when a `POST` or `PUT` request is successful, but saving the URL or inventory data has failed.'
+      description: 'Multi-status. Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occurred, such as when a `POST` or `PUT` request is successful, but saving the URL or inventory data has failed.'
       content:
         application/json:
           schema:
