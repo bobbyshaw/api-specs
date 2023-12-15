@@ -2,7 +2,7 @@ openapi: '3.0.3'
 info:
   title: Catalog - Brands
   description: |-
-    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/api-docs/store-management/catalog/products-overview).
+    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/docs/store-operations/catalog).
 
     Our Catalog Brands endpoints let you [create individual brands](/docs/rest-catalog/brands#create-a-brand) and [modify the brands](/docs/rest-catalog/brands#update-a-brand) associated with a store's products, along with [deleting brands](/docs/rest-catalog/brands#delete-a-brand). 
     
@@ -15,7 +15,7 @@ info:
     ## Resources
 
     ### Webhooks
-    * [Category](/api-docs/store-management/webhooks/events#category)
+    * [Category](/docs/integrations/webhooks/events#category)
 
     ### Additional Catalog endpoints
     * [Categories](/docs/rest-catalog/categories)
@@ -591,7 +591,12 @@ paths:
       tags:
         - Brands
       summary: Delete Brands
-      description: 'By default, it deletes all *Brand* objects. A filter should be added to avoid deleting all *Brand* objects in a store.'
+      description: |-
+        To delete brand objects, you must include a filter.
+
+        **Required Fields**
+         - name
+
       operationId: deleteBrands
       parameters:
         - name: name
@@ -600,6 +605,8 @@ paths:
             Filter items by name.
           schema:
             type: string
+          required:
+            true
         - name: page_title
           in: query
           description: |
@@ -620,14 +627,6 @@ paths:
       description: Returns a single *Brand*. Optional filter parameters can be passed in.
       operationId: getBrandById
       parameters:
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -707,13 +706,6 @@ paths:
       operationId: updateBrand
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -975,14 +967,6 @@ paths:
       summary: Delete a Brand
       description: Deletes a *Brand*.
       operationId: deleteBrandById
-      parameters:
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -998,14 +982,6 @@ paths:
       description: 'Returns a list of *Brand Metafields*. Optional filter parameters can be passed in. '
       operationId: getBrandMetafieldsByBrandId
       parameters:
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
-
         - name: id
           in: query
           description: |
@@ -1178,13 +1154,6 @@ paths:
       operationId: createBrandMetafield
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -1509,13 +1478,6 @@ paths:
       operationId: createBrandImage
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           multipart/form-data:
@@ -1602,14 +1564,6 @@ paths:
       summary: Delete a Brand Image
       description: Deletes a *Brand Image*.
       operationId: deleteBrandImage
-      parameters:
-        - name: brand_id
-          in: path
-          description: |
-            The ID of the `Brand` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -1950,14 +1904,14 @@ components:
         
         | Header | Argument | Description |
         |:-------|:---------|:------------|
-        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts). |
+        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/docs/start/authentication/api-accounts). |
         
         ### Further reading
         
-        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/api-docs/getting-started/authentication#x-auth-token-header-example-requests).
+        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/docs/start/authentication#x-auth-token-header-example-requests).
         
-        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts#oauth-scopes).
+        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/docs/start/authentication/api-accounts#oauth-scopes).
         
-        For a list of API status codes, see [API Status Codes](/api-docs/getting-started/api-status-codes).
+        For a list of API status codes, see [API Status Codes](/docs/start/about/status-codes).
       type: apiKey
       in: header

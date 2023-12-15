@@ -2,7 +2,7 @@ openapi: '3.0.3'
 info:
   title: Catalog - Categories
   description: |-
-    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/api-docs/store-management/catalog/products-overview).
+    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/docs/store-operations/catalog).
 
     Our Catalog Categories endpoints let you [create individual categories](/docs/rest-catalog/categories#create-a-category) and [modify categories](/docs/rest-catalog/categories#update-a-category) that organize a store's products, as well as [delete categories](/docs/rest-catalog/categories#delete-a-category). 
     
@@ -12,14 +12,14 @@ info:
 
     This API family also contains endpoints to [update product sort order](/docs/rest-catalog/categories/sort-order#update-product-sort-order) within a category. 
 
-    These endpoints are primarily useful in applications for single storefront stores. To work with categories for an [MSF-enabled store](/api-docs/multi-storefront/overview), see [Category Trees](/docs/rest-catalog/category-trees).
+    These endpoints are primarily useful in applications for single storefront stores. To work with categories for an [MSF-enabled store](/docs/storefront/multi-storefront), see [Category Trees](/docs/rest-catalog/category-trees).
 
     > To learn more about authenticating Catalog endpoints, locate the **Authentication** section at the top of each endpoint, then click **Show Details**. 
 
     ## Resources
 
     ### Webhooks
-    Learn more about [Category webhook events](/api-docs/store-management/webhooks/events#category).
+    Learn more about [Category webhook events](/docs/integrations/webhooks/events#category).
 
     ### Additional Catalog endpoints
     * [Brands](/docs/rest-catalog/brands)
@@ -55,13 +55,17 @@ paths:
       tags:
         - Categories
       summary: Get All Categories
-      description: Returns a list of *Categories*. Optional filter parameters can be passed in.
+      description: |-
+        Returns a list of *Categories*. Optional filter parameters can be passed in.
+
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: getCategories
       parameters:
         - name: id
           in: query
           description: |
-            Filter items by id.
+            Filter items by ID.
           schema:
             type: integer
         - name: 'id:in'
@@ -215,6 +219,18 @@ paths:
           description: 'Fields to exclude, in a comma-separated list. The specified fields will be excluded from a response. The ID cannot be excluded.'
           schema:
             type: string
+        - name: sort
+          in: query
+          description: |-
+            Controls the sort order of the response, for example, `sort=name`.
+          
+            Allowed values: 
+            - `name`: sort categories in alphabetical order by category name.
+            - `id`: sort in ascending order by category ID.
+            - `parent_id`: sort in ascending order by the ID of the parent category.
+            - `sort_order`: sort in ascending order by sort order value.
+          schema:
+            type: string
       responses:
         '200':
           description: ''
@@ -353,7 +369,7 @@ paths:
       tags:
         - Categories
       summary: Create a Category
-      description: "Creates a *Category*.\n\nUse this endpoint when an API only works with categories of a default BigCommerce storefront (`channel_id=1`). \n\nUse the [Create Categories](/docs/rest-catalog/category-trees/categories#create-categories) endpoint when an API works with categories across different category trees that belong to different storefront channels.\n\n**Required Fields**:\n- `parent_id`: \n\t- To create a child category, set the `parent_id` to the parent category.\n\t- To create a top level category, set the `parent_id` to `0`.\n- `name`\n\n**Read-Only Fields**:\n- `id`\n\n**Limits**:\n- 16,000 categories per store limit.\n- 1,000 categories per product limit.\n- 50 characters category name length.\n- 8 levels of category depth limit.\n- 65,642 characters category description length limit."
+      description: "Creates a *Category*.\n\nUse this endpoint when an API only works with categories of a default BigCommerce storefront (`channel_id=1`). \n\nUse the [Create Categories](/docs/rest-catalog/category-trees/categories#create-categories) endpoint when an API works with categories across different category trees that belong to different storefront channels.\n\n**Required Fields**:\n- `parent_id`: \n\t- To create a child category, set the `parent_id` to the parent category.\n\t- To create a top level category, set the `parent_id` to `0`.\n- `name`\n\n**Read-Only Fields**:\n- `id`\n\n**Limits**:\n- 16,000 categories per store limit.\n- 1,000 categories per product limit.\n- 50 characters category name length.\n- 8 levels of category depth limit.\n- 65,642 characters category description length limit.\n\n **Note:**\n The default rate limit for this endpoint is 40 concurrent requests.\n"
       operationId: createCategory
       parameters:
         - $ref: '#/components/parameters/ContentType'
@@ -430,7 +446,7 @@ paths:
                   minLength: 0
                   type: string
                   description: |
-                    A valid layout file. (Please refer to [this article](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/) on creating category files.) This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
+                    A valid layout file. Please refer to [the article on creating category files (Help Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
                   example: category.html
                 is_visible:
                   type: boolean
@@ -453,7 +469,7 @@ paths:
                 image_url:
                   type: string
                   description: |
-                    Image URL used for this category on the storefront. Images can be uploaded via form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
+                    Image URL used for this category on the storefront. Images can be uploaded using form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
                   example: 'https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png'
                   x-url: true
                 custom_url:
@@ -497,7 +513,7 @@ paths:
                   meta:
                     $ref: '#/components/schemas/metaEmpty_Full'
         '207':
-          description: 'Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occured, such as when a `POST` or `PUT` request is successful, but saving the URL has failed.'
+          description: 'Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occurred, such as when a `POST` or `PUT` request is successful, but saving the URL has failed.'
           content:
             application/json:
               schema:
@@ -570,7 +586,7 @@ paths:
       parameters:
         - name: id
           in: query
-          description: Filter items by id.
+          description: Filter items by ID.
           schema:
             type: integer
         - name: 'id:in'
@@ -715,17 +731,13 @@ paths:
       tags:
         - Categories
       summary: Get a Category
-      description: Returns a single *Category*. Optional parameters can be passed in.
+      description: |-
+        Returns a single *Category*. Optional parameters can be passed in.
+
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: getCategoryById
       parameters:
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -782,16 +794,12 @@ paths:
 
         **Read-Only Fields**
         - id
+
+        **Note:** 
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: updateCategory
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -871,7 +879,7 @@ paths:
                   minLength: 0
                   type: string
                   description: |
-                    A valid layout file. (Please refer to [this article](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/) on creating category files.) This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
+                    A valid layout file. Please refer to [the article on creating category files (Help Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
                   example: category.html
                 is_visible:
                   type: boolean
@@ -894,7 +902,7 @@ paths:
                 image_url:
                   type: string
                   description: |
-                    Image URL used for this category on the storefront. Images can be uploaded via form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
+                    Image URL used for this category on the storefront. Images can be uploaded using form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
                   example: 'https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png'
                   x-url: true
                 custom_url:
@@ -1009,7 +1017,7 @@ paths:
                         minLength: 0
                         type: string
                         description: |
-                          A valid layout file. (Please refer to [this article](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/) on creating category files.) This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
+                          A valid layout file. Please refer to [the article on creating category files (Help Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
                         example: category.html
                       is_visible:
                         type: boolean
@@ -1032,7 +1040,7 @@ paths:
                       image_url:
                         type: string
                         description: |
-                          Image URL used for this category on the storefront. Images can be uploaded via form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
+                          Image URL used for this category on the storefront. Images can be uploaded using form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
                         example: 'https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png'
                         x-url: true
                       custom_url:
@@ -1142,16 +1150,12 @@ paths:
       tags:
         - Categories
       summary: Delete a Category
-      description: Deletes a *Category*.
+      description: |-
+        Deletes a *Category*.
+        
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: deleteCategoryById
-      parameters:
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -1167,18 +1171,10 @@ paths:
       description: Returns a list of *Metafields* on a *Category*. Optional filter parameters can be passed in.
       operationId: getCategoryMetafieldsByCategoryId
       parameters:
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
-
         - name: id
           in: query
           description: |
-            Filter items by id.
+            Filter items by ID.
           schema:
             type: integer
         - name: 'id:in'
@@ -1343,17 +1339,10 @@ paths:
         **Read-Only Fields**
         - id
 
-        **Note:** The maxiumum number of metafields allowed on each order, product, category, variant, or brand is 250 per client ID. For more information, see [Platform Limits](https://support.bigcommerce.com/s/article/Platform-Limits) in the Help Center.
+        **Note:** The maximum number of metafields allowed on each order, product, category, variant, or brand is 250 per client ID. For more information, see [Platform Limits (Help Center)](https://support.bigcommerce.com/s/article/Platform-Limits) in the Help Center.
       operationId: createCategoryMetafield
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -1450,21 +1439,6 @@ paths:
       description: Returns a single *Category Metafield*. Optional parameters can be passed in.
       operationId: getCategoryMetafieldByCategoryId
       parameters:
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -1529,20 +1503,6 @@ paths:
       operationId: updateCategoryMetafield
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -1603,21 +1563,6 @@ paths:
       summary: Delete a Category Metafield
       description: Deletes a *Category Metafield*.
       operationId: deleteCategoryMetafieldById
-      parameters:
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -1643,13 +1588,6 @@ paths:
       operationId: createCategoryImage
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           multipart/form-data:
@@ -1736,16 +1674,8 @@ paths:
       tags:
         - Images
       summary: Delete a Category Image
-      description: Deletes a *Cateogory Image*.
+      description: Deletes a *Category Image*.
       operationId: deleteCategoryImage
-      parameters:
-        - name: category_id
-          in: path
-          description: |
-            The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -1770,21 +1700,20 @@ paths:
           - Priority 2: Manually specified sort order on Product (Global) Level (UI/API).
           - Priority 3: Default sorting by Product ID (newly added products go first) (UI/API).
       operationId: getsortorders
-      parameters:
-        - name: category_id
-          in: path
-          description: The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                type: object
-                properties: {}
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: number
+                    sort_order:
+                      type: integer
         '404':
           description: The requested category was not found.
           content:
@@ -1799,12 +1728,6 @@ paths:
       operationId: updatesortorder
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: category_id
-          in: path
-          description: The ID of the `Category` to which the resource belongs.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -1922,7 +1845,7 @@ components:
           minLength: 0
           type: string
           description: |
-            A valid layout file. (Please refer to [this article](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/) on creating category files.) This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
+            A valid layout file. Please refer to [the article on creating category files (Help Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
           example: category.html
         is_visible:
           type: boolean
@@ -1945,7 +1868,7 @@ components:
         image_url:
           type: string
           description: |
-            Image URL used for this category on the storefront. Images can be uploaded via form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
+            Image URL used for this category on the storefront. Images can be uploaded using form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
           example: 'https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png'
           x-url: true
         custom_url:
@@ -1956,7 +1879,7 @@ components:
     metafield_Base:
       title: metafield_Base
       type: object
-      description: 'Metafield for products, categories, variants, and brands; the max number of metafields allowed on each is 50. For more information, see [Platform Limits](https://support.bigcommerce.com/s/article/Platform-Limits) in the Help Center.'
+      description: 'Metafield for products, categories, variants, and brands; the max number of metafields allowed on each is 50. For more information, see [Platform Limits (Help Center)](https://support.bigcommerce.com/s/article/Platform-Limits) in the Help Center.'
       x-internal: false
       properties:
         key:
@@ -2314,7 +2237,7 @@ components:
           minLength: 0
           type: string
           description: |
-            A valid layout file. (Please refer to [this article](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/) on creating category files.) This field is writable only for stores with a Blueprint theme applied.
+            A valid layout file. Please refer to [the article on creating category files (Help Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see [Custom Template Associations](/docs/rest-content/custom-template-associations).
           example: category.html
     is_visible:
       title: is_visible
@@ -2331,7 +2254,7 @@ components:
         image_url:
           type: string
           description: |
-            Image URL used for this category on the storefront. Images can be uploaded via form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
+            Image URL used for this category on the storefront. Images can be uploaded using form file post to `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image extension like .jpg or .png is required.
           example: 'https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png'
           x-url: true
     meta_description:
@@ -2366,7 +2289,7 @@ components:
           example: 2
   responses:
     General207Status:
-      description: 'Multi-status. Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occured, such as when a `POST` or `PUT` request is successful, but saving the URL or inventory data has failed.'
+      description: 'Multi-status. Multiple operations have taken place and the status for each operation can be viewed in the body of the response. Typically indicates that a partial failure has occurred, such as when a `POST` or `PUT` request is successful, but saving the URL or inventory data has failed.'
       content:
         application/json:
           schema:
@@ -2419,14 +2342,14 @@ components:
         
         | Header | Argument | Description |
         |:-------|:---------|:------------|
-        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts). |
+        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/docs/start/authentication/api-accounts). |
         
         ### Further reading
         
-        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/api-docs/getting-started/authentication#x-auth-token-header-example-requests).
+        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/docs/start/authentication#x-auth-token-header-example-requests).
         
-        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts#oauth-scopes).
+        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/docs/start/authentication/api-accounts#oauth-scopes).
         
-        For a list of API status codes, see [API Status Codes](/api-docs/getting-started/api-status-codes).
+        For a list of API status codes, see [API Status Codes](/docs/start/about/status-codes).
       type: apiKey
       in: header

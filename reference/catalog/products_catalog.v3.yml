@@ -2,11 +2,11 @@ openapi: '3.0.3'
 info:
   title: Catalog - Products
   description: |-
-    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/api-docs/store-management/catalog/products-overview).
+    > The Catalog API manages products, categories, brands, bulk pricing rules, and more. To learn more about catalog resources, see the [Catalog Overview](/docs/store-operations/catalog).
 
     Our Catalog Products endpoints let you [create products](/docs/rest-catalog/products#create-a-product), perform [batch operations on existing products](/docs/rest-catalog/products#update-products-batch) and work with [reviews](/docs/rest-catalog/products/reviews), [images](/docs/rest-catalog/products/images), and [videos](/docs/rest-catalog/products/videos). Note that after a product is created initially, you can manage the nuances of its variations using the [Product Modifier](/docs/rest-catalog/product-modifiers), [Product Variant](/docs/rest-catalog/product-variants), and [Product Variant Options](/docs/rest-catalog/product-variant-options) endpoints. 
 
-    Other core product endpoints focus on [bulk pricing](/docs/rest-catalog/products/bulk-pricing-rules), [complex rules](/docs/rest-catalog/products/complex-rules), [custom fields](/docs/rest-catalog/products/custom-fields), and [metafields](/docs/rest-catalog/products/metafields). Product Variant objects also contain [their own metafields](/docs/rest-catalog/product-variants/metafields). For [MSF-enabled](/api-docs/multi-storefront/overview) stores, the product object also contains product [channel assignments](/docs/rest-catalog/products/channel-assignments) and [category assignments](/docs/rest-catalog/products/category-assignments); read more about [products in the MSF context](/api-docs/multi-storefront/api-guide#products). 
+    Other core product endpoints focus on [bulk pricing](/docs/rest-catalog/products/bulk-pricing-rules), [complex rules](/docs/rest-catalog/products/complex-rules), [custom fields](/docs/rest-catalog/products/custom-fields), and [metafields](/docs/rest-catalog/products/metafields). Product Variant objects also contain [their own metafields](/docs/rest-catalog/product-variants/metafields). For [MSF-enabled](/docs/storefront/multi-storefront) stores, the product object also contains product [channel assignments](/docs/rest-catalog/products/channel-assignments) and [category assignments](/docs/rest-catalog/products/category-assignments); read more about [products in the MSF context](/docs/storefront/multi-storefront/guide#products). 
     
     This API family also contains an endpoint to [Get a catalog summary](/docs/rest-catalog/products/summary).
 
@@ -15,8 +15,8 @@ info:
     ## Resources
 
     ### Webhooks
-    * [Product webhook events](/api-docs/store-management/webhooks/webhook-events#products)
-    * [Product assignment webhook events](/api-docs/channels/guide/webhooks#product-assignments) 
+    * [Product webhook events](/docs/integrations/webhooks/events#products)
+    * [Product assignment webhook events](/docs/integrations/webhooks/events/channels#product-assignments) 
 
     ### Additional Catalog endpoints
     * [Brands](/docs/rest-catalog/brands)
@@ -302,17 +302,20 @@ paths:
               * modifiers
               * options
               * videos
+          explode: false
           schema:
-            type: string
-            enum:
-              - variants
-              - images
-              - custom_fields
-              - bulk_pricing_rules
-              - primary_image
-              - modifiers
-              - options
-              - videos
+            type: array
+            items:
+              type: string
+              enum:
+                - variants
+                - images
+                - custom_fields
+                - bulk_pricing_rules
+                - primary_image
+                - modifiers
+                - options
+                - videos
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -340,7 +343,7 @@ paths:
             type: integer
         - name: limit
           in: query
-          description: Controls the number of items per page in a limited (paginated) list of products.
+          description: Controls the number of items per page in a limited (paginated) list of products. The default product limit is 50 with a maximum limit of 250.
           schema:
             type: integer
         - name: direction
@@ -844,7 +847,7 @@ paths:
               example:
                 errors: {}
                 status: 413
-                title: The request payload is too large. The maximum items allowed in the array is 50
+                title: The request payload is too large. The maximum items allowed in the array is 10.
                 type: /api-docs/getting-started/api-status-codes
         '422':
           description: '`Product` was not valid. This is the result of missing required fields or invalid data. See the response for more details.'
@@ -875,6 +878,7 @@ paths:
 
         **Limits**
         - 250 characters product name length.
+        - A product can have up to 1000 images. Each image file or image uploaded by URL can be up to 8 MB.
 
         **Usage Notes**
         * This endpoint accepts a `video` array. To create a product video that accepts a `video` object, see [Create a Product Video](/docs/rest-catalog/products/videos#create-a-product-video) for information.
@@ -1347,17 +1351,20 @@ paths:
         - name: include
           in: query
           description: 'Sub-resources to include on a product, in a comma-separated list. If `options` or `modifiers` is used, results are limited to 10 per page.'
+          explode: false
           schema:
-            type: string
-            enum:
-              - variants
-              - images
-              - custom_fields
-              - bulk_pricing_rules
-              - primary_image
-              - modifiers
-              - options
-              - videos
+            type: array
+            items:
+              type: string
+              enum: 
+                - variants
+                - images
+                - custom_fields
+                - bulk_pricing_rules
+                - primary_image
+                - modifiers
+                - options
+                - videos
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -1483,6 +1490,9 @@ paths:
       summary: Update a Product
       description: |
         Updates a *Product*.
+
+        **Limits**
+        - A product can have up to 1000 images. Each image file or image uploaded by URL can be up to 8 MB.
 
         **Read-Only Fields**
         - id
@@ -1907,10 +1917,7 @@ paths:
                   data:
                     type: array
                     items:
-                      title: Product Image
-                      type: object
-                      allOf:
-                        - $ref: '#/components/schemas/productImage_Full'
+                      $ref: '#/components/schemas/productImage_Full'
                   meta:
                     $ref: '#/components/schemas/metaCollection_Full'
                 description: |
@@ -1986,9 +1993,10 @@ paths:
 
         **Usage Notes**
         - `image_url` - `255` character limit
-        - For file uploads, use the `multipart/form-data` media type
-        - Only one image at a time can be created
+        - For file uploads, use the `multipart/form-data` media type.
+        - You can create only one image at a time. A product can have up to 1000 images.
         - Supported image file types are BMP, GIF, JPEG, PNG, WBMP, XBM, and WEBP.
+        - Each image file or image uploaded by URL can be up to 8 MB.
       operationId: createProductImage
       parameters:
         - $ref: '#/components/parameters/ContentType'
@@ -2006,11 +2014,6 @@ paths:
                       type: integer
                       description: |
                         The unique numeric identifier for the product with which the image is associated.
-                    image_file:
-                      type: string
-                      description: |-
-                        The local path to the original image file uploaded to BigCommerce.
-                        A `multipart/form-data` media type.
                     url_zoom:
                       readOnly: true
                       type: string
@@ -2060,7 +2063,9 @@ paths:
                     image_file:
                       type: string
                       description: |
-                        Must be sent as a multipart/form-data field in the request body. Limit of 1MB per file.
+                        The local path to the original image file uploaded to BigCommerce. A `multipart/form-data` media type.
+                        
+                        Must be sent as a `multipart/form-data` field in the request body. Limit of 8 MB per file.
           multipart/form-data:
             schema:
               title: Product Image Post
@@ -2077,11 +2082,6 @@ paths:
                       type: integer
                       description: |
                         The unique numeric identifier for the product with which the image is associated.
-                    image_file:
-                      type: string
-                      description: |-
-                        The local path to the original image file uploaded to BigCommerce.
-                        A `multipart/form-data` media type.
                     url_zoom:
                       readOnly: true
                       type: string
@@ -2131,7 +2131,9 @@ paths:
                     image_file:
                       type: string
                       description: |
-                        Must be sent as a multipart/form-data field in the request body. Limit of 1MB per file.
+                        The local path to the original image file uploaded to BigCommerce. A `multipart/form-data` media type.
+                        
+                        Must be sent as a multipart/form-data field in the request body. Limit of 8 MB per file.
         required: true
       responses:
         '200':
@@ -2157,12 +2159,6 @@ paths:
                             type: integer
                             description: |
                               The unique numeric identifier for the product with which the image is associated.
-                          image_file:
-                            type: string
-                            description: |-
-                              The local path to the original image file uploaded to BigCommerce.
-
-                              A `multipart/form-data` media type.
                           url_zoom:
                             readOnly: true
                             type: string
@@ -2218,6 +2214,8 @@ paths:
                             description: |-
                               The local path to the original image file uploaded to BigCommerce. Use image_url when creating a product.
                               A `multipart/form-data` media type.
+
+                              Must be sent as a multipart/form-data field in the request body. Limit of 8 MB per file.
                           url_zoom:
                             readOnly: true
                             type: string
@@ -2334,14 +2332,6 @@ paths:
       description: Returns a single *Product Image*. Optional parameters can be passed in.
       operationId: getProductImageById
       parameters:
-        - name: image_id
-          in: path
-          description: |
-            The ID of the `Image` that is being operated on.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -2411,17 +2401,11 @@ paths:
 
         **Usage Notes**
         - `image_url` - `255` character limit
+        - Each image file or image uploaded by URL can be up to 8 MB.
         - For file uploads, send a POST request using the `multipart/form-data` media type
       operationId: updateProductImage
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: image_id
-          in: path
-          description: |
-            The ID of the `Image` that is being operated on.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -2452,10 +2436,6 @@ paths:
                             type: integer
                             description: |
                               The unique numeric identifier for the product with which the image is associated.
-                          image_file:
-                            type: string
-                            description: |
-                              The local path to the original image file uploaded to BigCommerce.
                           url_zoom:
                             readOnly: true
                             type: string
@@ -2510,6 +2490,8 @@ paths:
                             type: string
                             description: |
                               The local path to the original image file uploaded to BigCommerce. Use image_url when creating a product.
+
+                              Must be sent as a `multipart/form-data` field in the request body. Limit of 8 MB per file.
                           url_zoom:
                             readOnly: true
                             type: string
@@ -2601,14 +2583,6 @@ paths:
       summary: Delete a Product Image
       description: Deletes a *Product Image*.
       operationId: deleteProductImage
-      parameters:
-        - name: image_id
-          in: path
-          description: |
-            The ID of the `Image` that is being operated on.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -2878,13 +2852,6 @@ paths:
       description: Returns a single *Product Video*. Optional parameters can be passed in.
       operationId: getProductVideoById
       parameters:
-        - name: id
-          in: path
-          description: The BigCommerce ID of the `Video`
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -2952,12 +2919,6 @@ paths:
       operationId: updateProductVideo
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: id
-          in: path
-          description: The BigCommerce ID of the `Video`
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -3098,13 +3059,6 @@ paths:
       summary: Delete a Product Video
       description: Deletes a *Product Video*.
       operationId: deleteProductVideo
-      parameters:
-        - name: id
-          in: path
-          description: The BigCommerce ID of the `Video`
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -3563,14 +3517,6 @@ paths:
       description: Returns a single *Complex Rule*. Optional parameters can be passed in.
       operationId: getComplexRuleById
       parameters:
-        - name: complex_rule_id
-          in: path
-          description: |
-            The ID of the `ComplexRule`.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -3764,14 +3710,6 @@ paths:
       operationId: updateComplexRule
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: complex_rule_id
-          in: path
-          description: |
-            The ID of the `ComplexRule`.
-          required: true
-          schema:
-            type: integer
-
       requestBody:
         content:
           application/json:
@@ -4095,14 +4033,6 @@ paths:
       summary: Delete a Complex Rule
       description: Deletes a product *Complex Rule*.
       operationId: deleteComplexRuleById
-      parameters:
-        - name: complex_rule_id
-          in: path
-          description: |
-            The ID of the `ComplexRule`.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -4116,7 +4046,11 @@ paths:
       tags:
         - Custom Fields
       summary: Get Custom Fields
-      description: Returns a list of product *Custom Fields*. Optional parameters can be passed in.
+      description: |-
+        Returns a list of product *Custom Fields*. Optional parameters can be passed in.
+
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: getCustomFields
       parameters:
         - name: include_fields
@@ -4214,9 +4148,8 @@ paths:
         **Read-Only:**
         - id
 
-        **Limits**
-        - 200 custom fields per product limit.
-        - 255 characters per custom field limit.
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests. 
       operationId: createCustomField
       parameters:
         - $ref: '#/components/parameters/ContentType'
@@ -4358,14 +4291,6 @@ paths:
       description: Returns a single *Custom Field*. Optional parameters can be passed in.
       operationId: getCustomFieldById
       parameters:
-        - name: custom_field_id
-          in: path
-          description: |
-            The ID of the `CustomField`.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -4430,13 +4355,6 @@ paths:
       operationId: updateCustomField
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: custom_field_id
-          in: path
-          description: |
-            The ID of the `CustomField`.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -4575,16 +4493,12 @@ paths:
       tags:
         - Custom Fields
       summary: Delete a Custom Field
-      description: Deletes a product *Custom Field*.
+      description: |-
+        Deletes a product *Custom Field*.
+
+        **Note:**
+        The default rate limit for this endpoint is 40 concurrent requests.
       operationId: deleteCustomFieldById
-      parameters:
-        - name: custom_field_id
-          in: path
-          description: |
-            The ID of the `CustomField`.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: '`204 No Content`. Action has been enacted and no further information is to be supplied. `null` is returned.'
@@ -4860,14 +4774,6 @@ paths:
       description: Returns a single *Bulk Pricing Rule*. Optional parameters can be passed in.
       operationId: getBulkPricingRuleById
       parameters:
-        - name: bulk_pricing_rule_id
-          in: path
-          description: |
-            The ID of the `BulkPricingRule`.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -4943,13 +4849,6 @@ paths:
       operationId: updateBulkPricingRule
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: bulk_pricing_rule_id
-          in: path
-          description: |
-            The ID of the `BulkPricingRule`.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -5112,14 +5011,6 @@ paths:
       summary: Delete a Bulk Pricing Rule
       description: Deletes a *Bulk Pricing Rule*.
       operationId: deleteBulkPricingRuleById
-      parameters:
-        - name: bulk_pricing_rule_id
-          in: path
-          description: |
-            The ID of the `BulkPricingRule`.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -5367,14 +5258,6 @@ paths:
       description: Returns a single *Product Metafield*. Optional parameters can be passed in.
       operationId: getProductMetafieldByProductId
       parameters:
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -5440,13 +5323,6 @@ paths:
       operationId: updateProductMetafield
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -5507,14 +5383,6 @@ paths:
       summary: Delete a Product Metafield
       description: Deletes a *Product Metafield*.
       operationId: deleteProductMetafieldById
-      parameters:
-        - name: metafield_id
-          in: path
-          description: |
-            The ID of the `Metafield`.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -5842,14 +5710,6 @@ paths:
       description: Returns a single *Product Review*. Optional parameters maybe passed in.
       operationId: getProductReviewById
       parameters:
-        - name: review_id
-          in: path
-          description: |
-            The ID of the `review` that is being operated on.
-          required: true
-          schema:
-            type: integer
-
         - name: include_fields
           in: query
           description: 'Fields to include, in a comma-separated list. The ID and the specified fields will be returned.'
@@ -5982,13 +5842,6 @@ paths:
       operationId: updateProductReview
       parameters:
         - $ref: '#/components/parameters/ContentType'
-        - name: review_id
-          in: path
-          description: |
-            The ID of the `review` that is being operated on.
-          required: true
-          schema:
-            type: integer
       requestBody:
         description: |
           A BigCommerce `ProductReview` object.
@@ -6155,14 +6008,6 @@ paths:
       summary: Delete a Product Review
       description: Deletes a *Product Review*.
       operationId: deleteProductReview
-      parameters:
-        - name: review_id
-          in: path
-          description: |
-            The ID of the `review` that is being operated on.
-          required: true
-          schema:
-            type: integer
       responses:
         '204':
           description: ''
@@ -6696,7 +6541,7 @@ components:
                                 
             If you exceed the limit, the store sets the variant inventory to the limit if no other variant inventories are set. If other variant inventories are set, the store does not save the variant inventory rather than setting the variant inventory to the remaining limit.
             
-            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/buy-online-pick-up-in-store/inventory#limit-handling-in-inventory-versus-catalog-api). 
+            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/docs/store-operations/catalog/inventory-adjustments#limit-handling-in-inventory-versus-catalog-api). 
           nullable: true
           maximum: 2147483647
         inventory_warning_level:
@@ -6882,7 +6727,7 @@ components:
                                 
             If you exceed the limit, the store sets the variant inventory to the limit if no other variant inventories are set. If other variant inventories are set, the store does not save the variant inventory rather than setting the variant inventory to the remaining limit.
             
-            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/buy-online-pick-up-in-store/inventory#limit-handling-in-inventory-versus-catalog-api). 
+            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/docs/store-operations/catalog/inventory-adjustments#limit-handling-in-inventory-versus-catalog-api). 
           nullable: true
           maximum: 2147483647
         inventory_warning_level:
@@ -7008,7 +6853,9 @@ components:
         image_file:
           type: string
           description: |
-            The local path to the original image file uploaded to BigCommerce. Limit of 1MB per file.
+            The local path to the original image file uploaded to BigCommerce. Use image_url when creating a product.
+
+            Must be sent as a `multipart/form-data` field in the request body. Limit of 8 MB per file.
         is_thumbnail:
           type: boolean
           description: |
@@ -8331,7 +8178,7 @@ components:
 
             The inventory for a product cannot exceed 2,147,483,647 in the catalog. If you exceed the limit, the store sets the inventory level to the limit.
 
-            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/buy-online-pick-up-in-store/inventory#limit-handling-in-inventory-versus-catalog-api). 
+            The Catalog API handles limits in a different way than the Inventory API. For more information, see [Limit handling](/docs/store-operations/catalog/inventory-adjustments#limit-handling-in-inventory-versus-catalog-api). 
         inventory_warning_level:
           maximum: 2147483647
           minimum: 0
@@ -8418,6 +8265,8 @@ components:
           type: string
           description: |
             Type of gift-wrapping options. Values: `any` - allow any gift-wrapping options in the store; `none` - disallow gift-wrapping on the product; `list` – provide a list of IDs in the `gift_wrapping_options_list` field.
+
+            Always included in the response body; not applicable for the `include_fields` and `exclude_fields` query parameters.
           enum:
             - any
             - none
@@ -8426,6 +8275,8 @@ components:
           type: array
           description: |
             A list of gift-wrapping option IDs.
+
+            Always included in the response body; not applicable for the `include_fields` and `exclude_fields` query parameters.
           items:
             type: integer
         sort_order:
@@ -8484,6 +8335,7 @@ components:
           type: integer
           description: |
             The number of times the product has been viewed.
+          deprecated: true
         preorder_release_date:
           type: string
           description: |
@@ -8573,7 +8425,7 @@ components:
           type: array
           minimum: 0
           maximum: 255
-          description: 200 maximum custom fields per product. 255 maximum characters per custom field.
+          description: 200 maximum custom fields per product. 255 maximum characters per custom field. The default rate limit for this endpoint is 40 concurrent requests.
           items:
             $ref: '#/components/schemas/productCustomField_Put'
         bulk_pricing_rules:
@@ -8875,14 +8727,14 @@ components:
         
         | Header | Argument | Description |
         |:-------|:---------|:------------|
-        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts). |
+        | `X-Auth-Token` | `access_token` | For more about API accounts that generate `access_token`s, see our [Guide to API Accounts](/docs/start/authentication/api-accounts). |
         
         ### Further reading
         
-        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/api-docs/getting-started/authentication#x-auth-token-header-example-requests).
+        For example requests and more information about authenticating BigCommerce APIs, see [Authentication and Example Requests](/docs/start/authentication#x-auth-token-header-example-requests).
         
-        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/api-docs/getting-started/api-accounts#oauth-scopes).
+        For more about BigCommerce OAuth scopes, see our [Guide to API Accounts](/docs/start/authentication/api-accounts#oauth-scopes).
         
-        For a list of API status codes, see [API Status Codes](/api-docs/getting-started/api-status-codes).
+        For a list of API status codes, see [API Status Codes](/docs/start/about/status-codes).
       type: apiKey
       in: header
